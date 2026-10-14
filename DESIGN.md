@@ -50,6 +50,8 @@ health, with explicit sensitivity/limitation notes.
 
 ## Content separation
 
+- The two views are **separate Streamlit pages** (`st.navigation`), so only the
+  selected view's code executes on any given render.
 - The customer view contains **only** operational, quality, adoption, and joint
   next-step content.
 - Internal-only content (competitive risk, relationship coverage, staffing,
@@ -70,8 +72,8 @@ sentiment.
   audit but coarse; they are chosen over a fitted model for transparency.
 - **Point-in-time vs. period metrics:** automation uses the weighted period rate;
   latency/quality use the latest-day value; both are labelled.
-- **Single-file demo vs. production auth:** the view selector is a convenience
-  control, explicitly documented as not a security boundary.
+- **Single-file demo vs. production auth:** the navigation selector is a
+  convenience control, explicitly documented as not a security boundary.
 
 ## Caveats
 

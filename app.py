@@ -1,17 +1,20 @@
 """Fireworks AI — Northstar Retail Group take-home assessment.
 
-A single Streamlit application with two strictly separated audience views
-selected via a top tab bar:
+A single Streamlit application with two strictly separated audience views,
+selected via the left navigation:
 
   1. Internal Fireworks QBR (account management, engineering, executives)
   2. Customer-facing Northstar account health (VP CX, VP Engineering)
 
+The two views are implemented as separate `st.Page`s, so only the selected
+view's code executes on any given render — the customer view never renders the
+internal view's content (and vice versa).
+
 Run:
     streamlit run app.py
 
-NOTE: the tab selector is for DEMONSTRATION ONLY. It is not an authentication
-or security boundary — both views run in the same process and the internal view
-must never be exposed to a real customer. See README.md.
+NOTE: the navigation selector is a local demonstration control, not an
+authentication or security boundary. See README.md.
 """
 
 from __future__ import annotations
@@ -32,14 +35,14 @@ st.set_page_config(
 ui.inject_css()
 
 # ---------------------------------------------------------------------------
-# Data
+# Data + validation (shared across pages; loading is cached)
 # ---------------------------------------------------------------------------
 
 df = load_dataframe()
 report = validate_dataframe(df)
 
 # ---------------------------------------------------------------------------
-# Sidebar: date filter (view selection lives in the top tabs)
+# Shared sidebar: date filter (view selection lives in the left navigation)
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
@@ -53,15 +56,11 @@ with st.sidebar:
         max_value=max_date,
     )
     ui.footnote(
-        "The Internal / Customer tabs are a local demonstration control — not an "
-        "authentication or security boundary."
+        "The Internal / Customer navigation is a local demonstration control — "
+        "not an authentication or security boundary."
     )
 
 ui.render_validation_banner(report)
-
-# ---------------------------------------------------------------------------
-# Compute filtered metrics + score (correctly recalculated per filter)
-# ---------------------------------------------------------------------------
 
 filtered = metrics.filter_by_date(df, start, end)
 if filtered.empty:
@@ -71,21 +70,33 @@ if filtered.empty:
 summary = metrics.compute_summary(filtered)
 score = scoring.compute_health_score(filtered)
 
-ui.header(
-    "Northstar Retail Group — Fireworks AI",
-    f"Deployment `northstar-flagship-support-ft-v1` · {summary['start_date']} to {summary['end_date']} · {summary['days']} days",
-)
 
-# ---------------------------------------------------------------------------
-# Top-level audience tabs
-# ---------------------------------------------------------------------------
+def _header(summary) -> None:
+    ui.header(
+        "Northstar Retail Group — Fireworks AI",
+        f"Deployment `northstar-flagship-support-ft-v1` · "
+        f"{summary['start_date']} to {summary['end_date']} · {summary['days']} days",
+    )
 
-internal_tab, customer_tab = st.tabs(
-    ["Internal Fireworks QBR", "Customer — Northstar account health"]
-)
 
-with internal_tab:
+def internal_page() -> None:
+    _header(summary)
     internal.render(summary, score, filtered)
 
-with customer_tab:
+
+def customer_page() -> None:
+    _header(summary)
     customer.render(summary, filtered)
+
+
+# ---------------------------------------------------------------------------
+# Separate pages for true audience isolation (only the selected page renders)
+# ---------------------------------------------------------------------------
+
+pg = st.navigation(
+    [
+        st.Page(internal_page, title="Internal Fireworks QBR", default=True),
+        st.Page(customer_page, title="Customer — Northstar account health"),
+    ]
+)
+pg.run()
