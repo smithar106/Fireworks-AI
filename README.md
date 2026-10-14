@@ -73,16 +73,16 @@ Then open the printed local URL (default `http://localhost:8501`).
 
 ## Navigation
 
-The two views are **separate Streamlit pages** (true audience isolation — only
-the selected view's code renders on any given page load):
+The two views are selected with a **segmented control at the top of the page**
+(no sidebar). Only the selected view renders — the other view's code never runs,
+so the customer view never renders internal content:
 
 - **Internal Fireworks QBR** — account management, engineering, executives.
 - **Customer — Northstar account health** — VP Customer Experience, VP Engineering.
 
-- Use the **left navigation** to switch between the two views.
-- The **sidebar** also holds the date-range filter, which recalculates every
-  metric (totals, weighted automation, and the health score) over the selected
-  window.
+A **date-range filter** sits in a collapsible "Date range" control above the
+content; it recalculates every metric (totals, weighted automation, and the
+health score) over the selected window.
 
 > **The view selector is a local demonstration control only.** It is **not** an
 > authentication or security boundary — both views run in the same process and

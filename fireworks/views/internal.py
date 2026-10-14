@@ -82,29 +82,30 @@ def render(summary: dict[str, Any], score: dict[str, Any], df: pd.DataFrame) -> 
     sections = content(summary, score)
 
     for s in sections:
-        ui.section(s["heading"], s.get("subheading"))
-        if s.get("kpis"):
-            ui.kpi_row(s["kpis"])
-        for b in s["blocks"]:
-            st.markdown(b)
+        with st.container(border=True):
+            ui.section(s["heading"], s.get("subheading"))
+            if s.get("kpis"):
+                ui.kpi_row(s["kpis"])
+            for b in s["blocks"]:
+                st.markdown(b)
 
-        heading = s["heading"]
-        if heading == "Account overview":
-            ui.takeaways(_overview_takeaways(summary, score))
-        elif heading == "Account health score":
-            _render_scoring(score)
-        elif heading == "Trends":
-            _render_trends(df)
-        elif heading == "Incidents":
-            _render_incidents()
-        elif heading == "Top risks":
-            _render_risks()
-        elif heading == "Expansion pipeline":
-            _render_brands()
-        elif heading == "Scaling architecture":
-            _render_architecture()
-        elif heading == "Action tracker":
-            _render_actions()
+            heading = s["heading"]
+            if heading == "Account overview":
+                ui.takeaways(_overview_takeaways(summary, score))
+            elif heading == "Account health score":
+                _render_scoring(score)
+            elif heading == "Trends":
+                _render_trends(df)
+            elif heading == "Incidents":
+                _render_incidents()
+            elif heading == "Top risks":
+                _render_risks()
+            elif heading == "Expansion pipeline":
+                _render_brands()
+            elif heading == "Scaling architecture":
+                _render_architecture()
+            elif heading == "Action tracker":
+                _render_actions()
 
 
 def _render_scoring(score: dict[str, Any]) -> None:

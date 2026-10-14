@@ -50,8 +50,8 @@ health, with explicit sensitivity/limitation notes.
 
 ## Content separation
 
-- The two views are **separate Streamlit pages** (`st.navigation`), so only the
-  selected view's code executes on any given render.
+- The two views are selected with a **top segmented control** and rendered via an
+  `if/elif`, so only the selected view's code executes on any given render.
 - The customer view contains **only** operational, quality, adoption, and joint
   next-step content.
 - Internal-only content (competitive risk, relationship coverage, staffing,

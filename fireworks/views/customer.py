@@ -79,11 +79,16 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             "blocks": [],
         },
         {
-            "heading": "Incidents & next steps",
+            "heading": "Incidents",
             "blocks": [
                 "Three events were disclosed and resolved same-day: catalog sync (Aug 9), "
                 "promotional traffic burst (Aug 21), RAG index refresh (Aug 24).",
-                "Next: agree a second-brand pilot, tie autoscaling to the promotion calendar, "
+            ],
+        },
+        {
+            "heading": "Recommendations",
+            "blocks": [
+                "Agree a second-brand pilot, tie autoscaling to the promotion calendar, "
                 "and expand coverage to the top unresolved intents.",
             ],
         },
@@ -95,38 +100,39 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
     sections = content(summary)
 
     for s in sections:
-        ui.section(s["heading"], s.get("subheading"))
-        if s.get("kpis"):
-            ui.kpi_row(s["kpis"])
-        for b in s["blocks"]:
-            st.markdown(b)
+        with st.container(border=True):
+            ui.section(s["heading"], s.get("subheading"))
+            if s.get("kpis"):
+                ui.kpi_row(s["kpis"])
+            for b in s["blocks"]:
+                st.markdown(b)
 
-        heading = s["heading"]
-        if heading == "Executive summary":
-            ui.takeaways(_outcome_takeaways(summary))
-        elif heading == "Usage & spend":
-            c1, c2 = st.columns(2)
-            with c1:
-                ui.chart(charts.line(df, ["requests"], ["Requests"], "Requests per day", "requests"))
-            with c2:
-                ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Spend per day (USD)", "USD", colors=[config.ACCENT]))
-        elif heading == "Reliability":
-            ui.chart(
-                charts.line(
-                    df, ["p50_latency_ms", "p95_latency_ms"], ["P50", "P95 (daily)"],
-                    "Latency — falling through August", "ms",
-                    colors=[config.ACCENT, config.WARN],
+            heading = s["heading"]
+            if heading == "Executive summary":
+                ui.takeaways(_outcome_takeaways(summary))
+            elif heading == "Usage & spend":
+                c1, c2 = st.columns(2)
+                with c1:
+                    ui.chart(charts.line(df, ["requests"], ["Requests"], "Requests per day", "requests"))
+                with c2:
+                    ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Spend per day (USD)", "USD", colors=[config.ACCENT]))
+            elif heading == "Reliability":
+                ui.chart(
+                    charts.line(
+                        df, ["p50_latency_ms", "p95_latency_ms"], ["P50", "P95 (daily)"],
+                        "Latency — falling through August", "ms",
+                        colors=[config.ACCENT, config.WARN],
+                    )
                 )
-            )
-            ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", "%", colors=[config.BAD]))
-        elif heading == "Quality":
-            ui.chart(
-                charts.line(
-                    df, ["grounded_answer_rate_pct", "quality_eval_pass_rate_pct"],
-                    ["Grounded answers", "Quality eval pass"], "Answer quality", "%",
-                    colors=[config.GOOD, config.ACCENT],
+                ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", "%", colors=[config.BAD]))
+            elif heading == "Quality":
+                ui.chart(
+                    charts.line(
+                        df, ["grounded_answer_rate_pct", "quality_eval_pass_rate_pct"],
+                        ["Grounded answers", "Quality eval pass"], "Answer quality", "%",
+                        colors=[config.GOOD, config.ACCENT],
+                    )
                 )
-            )
 
     ui.footnote(
         "Outcomes (70% automation, 35% handle-time, +12 CSAT) are measured against a "

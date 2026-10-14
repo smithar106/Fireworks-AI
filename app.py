@@ -1,20 +1,19 @@
 """Fireworks AI — Northstar Retail Group take-home assessment.
 
 A single Streamlit application with two strictly separated audience views,
-selected via the left navigation:
+selected via a top segmented control (no sidebar):
 
   1. Internal Fireworks QBR (account management, engineering, executives)
   2. Customer-facing Northstar account health (VP CX, VP Engineering)
 
-The two views are implemented as separate `st.Page`s, so only the selected
-view's code executes on any given render — the customer view never renders the
-internal view's content (and vice versa).
+Only the selected view renders (the other view's code never runs), so the
+customer page never renders internal content.
 
 Run:
     streamlit run app.py
 
-NOTE: the navigation selector is a local demonstration control, not an
-authentication or security boundary. See README.md.
+NOTE: the view selector is a local demonstration control, not an authentication
+or security boundary. See README.md.
 """
 
 from __future__ import annotations
@@ -29,24 +28,34 @@ st.set_page_config(
     page_title="Northstar — Fireworks AI",
     page_icon="✦",
     layout="wide",
-    initial_sidebar_state="expanded",
 )
 
 ui.inject_css()
 
 # ---------------------------------------------------------------------------
-# Data + validation (shared across pages; loading is cached)
+# Data + validation (loading is cached)
 # ---------------------------------------------------------------------------
 
 df = load_dataframe()
 report = validate_dataframe(df)
+ui.render_validation_banner(report)
 
 # ---------------------------------------------------------------------------
-# Shared sidebar: date filter (view selection lives in the left navigation)
+# Top header + view selector + date filter (no sidebar)
 # ---------------------------------------------------------------------------
 
-with st.sidebar:
-    st.markdown("#### Date range")
+ui.header(
+    "Northstar Retail Group — Fireworks AI",
+    "Northstar flagship support agent · one month in production",
+)
+
+view = st.segmented_control(
+    "View",
+    options=["Internal Fireworks QBR", "Customer — Northstar account health"],
+    default="Internal Fireworks QBR",
+)
+
+with st.expander("Date range", expanded=False):
     min_date = df[config.DATE_COL].min().date()
     max_date = df[config.DATE_COL].max().date()
     start, end = st.date_input(
@@ -55,12 +64,6 @@ with st.sidebar:
         min_value=min_date,
         max_value=max_date,
     )
-    ui.footnote(
-        "The Internal / Customer navigation is a local demonstration control — "
-        "not an authentication or security boundary."
-    )
-
-ui.render_validation_banner(report)
 
 filtered = metrics.filter_by_date(df, start, end)
 if filtered.empty:
@@ -70,33 +73,17 @@ if filtered.empty:
 summary = metrics.compute_summary(filtered)
 score = scoring.compute_health_score(filtered)
 
+# ---------------------------------------------------------------------------
+# Render only the selected view (true audience isolation)
+# ---------------------------------------------------------------------------
 
-def _header(summary) -> None:
-    ui.header(
-        "Northstar Retail Group — Fireworks AI",
-        f"Deployment `northstar-flagship-support-ft-v1` · "
-        f"{summary['start_date']} to {summary['end_date']} · {summary['days']} days",
-    )
-
-
-def internal_page() -> None:
-    _header(summary)
+if view == "Customer — Northstar account health":
+    customer.render(summary, filtered)
+else:
     internal.render(summary, score, filtered)
 
-
-def customer_page() -> None:
-    _header(summary)
-    customer.render(summary, filtered)
-
-
-# ---------------------------------------------------------------------------
-# Separate pages for true audience isolation (only the selected page renders)
-# ---------------------------------------------------------------------------
-
-pg = st.navigation(
-    [
-        st.Page(internal_page, title="Internal Fireworks QBR", default=True),
-        st.Page(customer_page, title="Customer — Northstar account health"),
-    ]
+ui.footnote(
+    "The view selector is a local demonstration control, not an authentication or "
+    "security boundary. Metric notes: requests are inference calls; weighted "
+    "automation = sum(automated) / sum(Tier-1); P95 latency is the daily reported value."
 )
-pg.run()
