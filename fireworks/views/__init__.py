@@ -23,4 +23,5 @@ def flatten(sections: list[dict[str, Any]]) -> list[str]:
             if k.get("help"):
                 texts.append(k["help"])
         texts.extend(s.get("blocks", []))
+        texts.extend(s.get("notes", []))
     return texts

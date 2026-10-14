@@ -102,6 +102,15 @@ def inject_css() -> None:
         .fw-footnote { color: #8A8A94; font-size: 0.76rem; line-height: 1.45;
             border-top: 1px solid #E6E6EA; margin-top: 0.4rem; padding-top: 0.4rem; }
 
+        .fw-note {
+            font-size: 0.78rem; color: #6B6B75; line-height: 1.5;
+            margin-top: 0.7rem; padding-top: 0.55rem; border-top: 1px solid #F0F0F3;
+        }
+        .fw-note-label {
+            font-weight: 700; color: #8A8A94; text-transform: uppercase;
+            font-size: 0.66rem; letter-spacing: 0.07em; margin-right: 0.35rem;
+        }
+
         /* Uniform spacing between bordered section cards */
         [data-testid="stVerticalBlockBorderWrapper"] {
             border-radius: 0.75rem;
@@ -194,6 +203,14 @@ def pill(text: str, tone: str = "muted") -> None:
 
 def footnote(text: str) -> None:
     st.markdown(f'<div class="fw-footnote">{text}</div>', unsafe_allow_html=True)
+
+
+def note(text: str) -> None:
+    """Render a labelled 'Note' annotation with a subtle top separator."""
+    st.markdown(
+        f'<div class="fw-note"><span class="fw-note-label">Note</span>{text}</div>',
+        unsafe_allow_html=True,
+    )
 
 
 def takeaways(items: list[dict[str, Any]]) -> None:

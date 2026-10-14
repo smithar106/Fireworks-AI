@@ -56,6 +56,11 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
                 {"label": "Spend", "value": ui.fmt_usd(summary["total_spend"]), "sub": "inference only", "tone": "neutral"},
                 {"label": "Blended $/M tokens", "value": f"${summary['spend_per_million_tokens']:.2f}", "sub": "input + output", "tone": "neutral"},
             ],
+            "notes": [
+                f"Budget context: ${summary['total_spend']:,.2f} of inference spend for the month "
+                f"(~${summary['spend_per_million_tokens']:.2f} per million tokens); expansion cost "
+                "scales with support volume."
+            ],
             "blocks": [],
         },
         {
@@ -76,6 +81,11 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
                 {"label": "Quality eval pass", "value": ui.fmt_pct(latest["quality_eval_pass_rate_pct"]), "sub": "latest day", "tone": "good"},
                 {"label": "Escalations", "value": ui.fmt_pct(latest["escalation_rate_pct"]), "sub": "14.6% → 11.2%", "tone": "good"},
             ],
+            "notes": [
+                "Caveats: the 35% handle-time and +12 CSAT outcomes are measured against a "
+                "pre-launch baseline not in this dataset; P95 latency is the daily reported "
+                "value; spend is inference-only."
+            ],
             "blocks": [],
         },
         {
@@ -83,6 +93,10 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             "blocks": [
                 "Three events were disclosed and resolved same-day: catalog sync (Aug 9), "
                 "promotional traffic burst (Aug 21), RAG index refresh (Aug 24).",
+            ],
+            "notes": [
+                "Key risks: catalog/content refreshes and promotional bursts briefly raised "
+                "latency and errors (both mitigated same-day); ~32% of Tier-1 remains manual."
             ],
         },
         {
@@ -133,3 +147,6 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
                         colors=[config.GOOD, config.ACCENT],
                     )
                 )
+
+            for n in s.get("notes", []):
+                ui.note(n)

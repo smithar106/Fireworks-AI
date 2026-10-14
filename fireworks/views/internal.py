@@ -72,6 +72,12 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
                 "- **Expansion confidence:** *Illustrative* — medium-high given health score 92.8 and incident mitigation.",
                 "- **Blockers:** none observed; watch content-refresh and promo-traffic recurrence.",
             ],
+            "notes": [
+                "Internal dependencies: engineering capacity for cache-warming and autoscaling "
+                "hardening, a data-science sprint for intent coverage, and Northstar's promotion calendar.",
+                "Decisions needed: green-light the second-brand pilot, approve hardening, and "
+                "scope the next coverage sprint.",
+            ],
         },
         {"heading": "Action tracker", "blocks": []},
     ]
@@ -106,6 +112,9 @@ def render(summary: dict[str, Any], score: dict[str, Any], df: pd.DataFrame) -> 
                 _render_architecture()
             elif heading == "Action tracker":
                 _render_actions()
+
+            for n in s.get("notes", []):
+                ui.note(n)
 
 
 def _render_scoring(score: dict[str, Any]) -> None:
