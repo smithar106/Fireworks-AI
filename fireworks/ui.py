@@ -1,4 +1,8 @@
-"""Shared UI helpers: styling, KPI cards, sections, footnotes, and formatting."""
+"""Shared UI helpers: styling, KPI cards, sections, footnotes, and formatting.
+
+The design language mirrors the reference dashboard: a restrained light theme,
+uppercase KPI labels over large values, and bordered white cards.
+"""
 
 from __future__ import annotations
 
@@ -33,41 +37,64 @@ def fmt_ms(x: float) -> str:
     return f"{x:,.0f} ms"
 
 
+_TONE_COLORS = {
+    "neutral": config.INK,
+    "good": config.GOOD_TEXT,
+    "bad": config.BAD,
+    "warn": config.WARN_TEXT,
+    "accent": config.ACCENT_DARK,
+}
+
+# Monotonic key generator for charts (charts hold no widget state, so a
+# run-scoped counter guarantees unique Streamlit element ids without callers
+# having to thread keys everywhere).
+_chart_seq = 0
+
+
+def chart(fig, use_container_width: bool = True) -> None:
+    global _chart_seq
+    _chart_seq += 1
+    st.plotly_chart(fig, width="stretch", key=f"fw_chart_{_chart_seq}")
+
+
 # ---------------------------------------------------------------------------
 # Styling
 # ---------------------------------------------------------------------------
 
 
 def inject_css() -> None:
-    """Inject a restrained enterprise SaaS stylesheet."""
     st.markdown(
         """
         <style>
-        :root {
-            --ink: #14161A;
-            --muted: #5C6470;
-            --line: #E7E5DF;
-            --accent: #3457D5;
+        .block-container { padding-top: 1.5rem; padding-bottom: 3rem; max-width: 1180px; }
+        h1, h2, h3 { color: #19191F; letter-spacing: -0.01em; }
+
+        .fw-header { border-bottom: 1px solid #E6E6EA; padding-bottom: 1rem; margin-bottom: 0.25rem; }
+        .fw-header h1 { font-size: 1.5rem; font-weight: 800; margin: 0; color: #19191F; }
+        .fw-header p { margin: 0.25rem 0 0; color: #6B6B75; font-size: 0.9rem; }
+
+        .fw-kpi-row {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 0.75rem; margin: 0.25rem 0 1rem;
         }
-        .block-container { padding-top: 2rem; padding-bottom: 3rem; max-width: 1160px; }
-        h1, h2, h3 { color: var(--ink); letter-spacing: -0.01em; }
-        div[data-testid="stMetric"] {
-            background: #FFFFFF;
-            border: 1px solid var(--line);
-            border-radius: 0.9rem;
-            padding: 1rem 1.1rem;
-            box-shadow: 0 1px 1px rgba(20,22,26,0.04), 0 10px 26px -20px rgba(20,22,26,0.16);
+        .fw-kpi {
+            background: #FFFFFF; border: 1px solid #E6E6EA; border-radius: 0.75rem;
+            padding: 1rem 1.1rem; box-shadow: 0 1px 2px rgba(25,25,31,0.04);
         }
-        div[data-testid="stMetricValue"] { font-size: 1.5rem; font-weight: 650; }
-        div[data-testid="stMetricLabel"] { color: var(--muted); }
-        .fw-footnote {
-            color: #9299A4; font-size: 0.78rem; line-height: 1.45;
-            border-top: 1px solid var(--line); margin-top: 0.4rem; padding-top: 0.4rem;
+        .fw-kpi-label {
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; color: #6B6B75;
         }
-        .fw-eyebrow {
-            font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
-            color: #9299A4; font-weight: 600;
-        }
+        .fw-kpi-value { font-size: 1.65rem; font-weight: 800; margin-top: 0.3rem; color: #19191F; line-height: 1.1; }
+        .fw-kpi-sub { font-size: 0.78rem; color: #6B6B75; margin-top: 0.3rem; }
+
+        .fw-section { margin-top: 0.75rem; }
+        .fw-section h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.1rem; }
+        .fw-subtitle { color: #6B6B75; font-size: 0.85rem; margin-top: -0.25rem; }
+        .fw-eyebrow { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #8A8A94; font-weight: 700; }
+
+        .fw-footnote { color: #8A8A94; font-size: 0.76rem; line-height: 1.45;
+            border-top: 1px solid #E6E6EA; margin-top: 0.4rem; padding-top: 0.4rem; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -79,30 +106,51 @@ def inject_css() -> None:
 # ---------------------------------------------------------------------------
 
 
+def header(title: str, subtitle: str) -> None:
+    st.markdown(
+        f'<div class="fw-header"><h1>{title}</h1><p>{subtitle}</p></div>',
+        unsafe_allow_html=True,
+    )
+
+
+def kpi_row(items: list[dict[str, Any]]) -> None:
+    """Render a responsive row of KPI cards.
+
+    Each item: {"label": str, "value": str, "sub": str | None, "tone": str}.
+    """
+    cards = []
+    for it in items:
+        color = _TONE_COLORS.get(it.get("tone", "neutral"), config.INK)
+        sub = f'<div class="fw-kpi-sub">{it["sub"]}</div>' if it.get("sub") else ""
+        cards.append(
+            f'<div class="fw-kpi"><div class="fw-kpi-label">{it["label"]}</div>'
+            f'<div class="fw-kpi-value" style="color:{color}">{it["value"]}</div>{sub}</div>'
+        )
+    st.markdown(f'<div class="fw-kpi-row">{"".join(cards)}</div>', unsafe_allow_html=True)
+
+
 def section(title: str, subtitle: str | None = None, eyebrow: str | None = None) -> None:
+    parts = []
     if eyebrow:
-        st.markdown(f'<div class="fw-eyebrow">{eyebrow}</div>', unsafe_allow_html=True)
-    st.markdown(f"### {title}")
+        parts.append(f'<div class="fw-eyebrow">{eyebrow}</div>')
+    parts.append(f"<h3>{title}</h3>")
     if subtitle:
-        st.markdown(f'<p style="color:{config.MUTED};margin-top:-0.5rem;">{subtitle}</p>', unsafe_allow_html=True)
-
-
-def kpi(label: str, value: str, delta: str | None = None, delta_color: str = "normal", help: str | None = None) -> None:
-    st.metric(label=label, value=value, delta=delta, delta_color=delta_color, help=help)
+        parts.append(f'<div class="fw-subtitle">{subtitle}</div>')
+    st.markdown(f'<div class="fw-section">{"".join(parts)}</div>', unsafe_allow_html=True)
 
 
 def pill(text: str, tone: str = "muted") -> None:
     tones = {
         "muted": ("#F1F0EB", "#5C6470"),
-        "good": ("#E8F8F0", "#0A5C3F"),
-        "warn": ("#FBF1E1", "#8A5208"),
-        "bad": ("#FBEDEA", "#8A3324"),
-        "accent": ("#ECF0FD", "#16286B"),
+        "good": ("#EAF7EE", config.GOOD_TEXT),
+        "warn": ("#FDF3E3", config.WARN_TEXT),
+        "bad": ("#FDECEA", "#8A1C0D"),
+        "accent": ("#EDF2FF", config.ACCENT_DARK),
     }
     bg, fg = tones.get(tone, tones["muted"])
     st.markdown(
         f'<span style="display:inline-block;background:{bg};color:{fg};'
-        f'border-radius:999px;padding:0.15rem 0.65rem;font-size:0.75rem;font-weight:600;">{text}</span>',
+        f'border-radius:999px;padding:0.12rem 0.6rem;font-size:0.74rem;font-weight:700;">{text}</span>',
         unsafe_allow_html=True,
     )
 
@@ -116,7 +164,6 @@ def disclaimer(text: str) -> None:
 
 
 def render_validation_banner(report: dict[str, Any]) -> None:
-    """Show a validation status banner; does not block rendering on warnings."""
     if report["ok"]:
         if report.get("warnings"):
             st.warning("Data validation: " + "; ".join(report["warnings"]))

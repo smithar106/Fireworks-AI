@@ -36,9 +36,9 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             "heading": "Executive summary",
             "subheading": "Northstar flagship — 30-day account health review",
             "kpis": [
-                {"label": "Tier-1 automation", "value": ui.fmt_pct(summary["weighted_automation_pct"]), "delta": None},
-                {"label": "Availability", "value": ui.fmt_pct(latest["availability_pct"], 3), "delta": None},
-                {"label": "CSAT (Aug 31)", "value": f"{latest['csat_score']:.1f}", "delta": None},
+                {"label": "Tier-1 automation", "value": ui.fmt_pct(summary["weighted_automation_pct"]), "sub": "Aug 31: 70.8%", "tone": "good"},
+                {"label": "Availability", "value": ui.fmt_pct(latest["availability_pct"], 3), "sub": "≥99.8% all month", "tone": "good"},
+                {"label": "CSAT", "value": f"{latest['csat_score']:.1f}", "sub": f"+{summary['csat_point_change']:.1f} pts in Aug", "tone": "good"},
             ],
             "blocks": [
                 "Fireworks deployed an AI support agent for the Northstar flagship "
@@ -55,12 +55,12 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
         },
         {
-            "heading": "Adoption, usage & spend",
+            "heading": "Adoption & spend",
             "kpis": [
-                {"label": "Requests (inference calls)", "value": ui.fmt_int(summary["total_requests"])},
-                {"label": "Total tokens", "value": ui.fmt_number(summary["total_tokens"] / 1e9, 2) + "B"},
-                {"label": "Recorded spend", "value": ui.fmt_usd(summary["total_spend"])},
-                {"label": "Blended $/M tokens", "value": f"${summary['spend_per_million_tokens']:.2f}"},
+                {"label": "Requests", "value": ui.fmt_int(summary["total_requests"]), "sub": "inference calls", "tone": "neutral"},
+                {"label": "Total tokens", "value": ui.fmt_number(summary["total_tokens"] / 1e9, 2) + "B", "sub": "input + output", "tone": "neutral"},
+                {"label": "Recorded spend", "value": ui.fmt_usd(summary["total_spend"]), "sub": "inference only", "tone": "neutral"},
+                {"label": "Blended $/M tokens", "value": f"${summary['spend_per_million_tokens']:.2f}", "sub": "input + output", "tone": "neutral"},
             ],
             "blocks": [
                 "Requests represent inference calls to the deployed model, not unique "
@@ -75,12 +75,12 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
         },
         {
-            "heading": "Availability, latency & incidents",
+            "heading": "Reliability & incidents",
             "kpis": [
-                {"label": "Availability", "value": ui.fmt_pct(latest["availability_pct"], 3)},
-                {"label": "Error rate (Aug 31)", "value": ui.fmt_pct(latest["error_rate_pct"], 2)},
-                {"label": "P50 latency", "value": ui.fmt_ms(latest["p50_latency_ms"])},
-                {"label": "P95 latency (daily)", "value": ui.fmt_ms(latest["p95_latency_ms"])},
+                {"label": "Availability", "value": ui.fmt_pct(latest["availability_pct"], 3), "sub": "latest day", "tone": "good"},
+                {"label": "Error rate", "value": ui.fmt_pct(latest["error_rate_pct"], 2), "sub": "1.34% → 0.66%", "tone": "good"},
+                {"label": "P50 latency", "value": ui.fmt_ms(latest["p50_latency_ms"]), "sub": "latest day", "tone": "neutral"},
+                {"label": "P95 latency", "value": ui.fmt_ms(latest["p95_latency_ms"]), "sub": "daily reported", "tone": "neutral"},
             ],
             "blocks": [
                 "Availability stayed above 99.8% for the whole period, and the error "
@@ -96,9 +96,9 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
         {
             "heading": "Quality & escalations",
             "kpis": [
-                {"label": "Grounded answer rate", "value": ui.fmt_pct(latest["grounded_answer_rate_pct"])},
-                {"label": "Quality eval pass rate", "value": ui.fmt_pct(latest["quality_eval_pass_rate_pct"])},
-                {"label": "Escalation rate", "value": ui.fmt_pct(latest["escalation_rate_pct"])},
+                {"label": "Grounded answers", "value": ui.fmt_pct(latest["grounded_answer_rate_pct"]), "sub": "latest day", "tone": "good"},
+                {"label": "Quality eval pass", "value": ui.fmt_pct(latest["quality_eval_pass_rate_pct"]), "sub": "latest day", "tone": "good"},
+                {"label": "Escalation rate", "value": ui.fmt_pct(latest["escalation_rate_pct"]), "sub": "14.6% → 11.2%", "tone": "good"},
             ],
             "blocks": [
                 "Grounded answer rate reached **96.5%** and quality-eval pass rate "
@@ -113,7 +113,7 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
         },
         {
-            "heading": "Key risks & recommended actions",
+            "heading": "Key risks & actions",
             "blocks": [
                 "Three operational risks are worth watching, each already mitigated once:",
                 "- **Content/catalog refreshes** can briefly raise latency and errors (Aug 9). "
@@ -125,7 +125,7 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
         },
         {
-            "heading": "Joint actions & expansion opportunity",
+            "heading": "Joint actions",
             "blocks": [
                 "Proposed joint next steps (owners and dates to be confirmed at the EBR):",
                 "- **Agree pilot success criteria for a second brand** — Account Executive & customer.",
@@ -137,7 +137,7 @@ def content(summary: dict[str, Any]) -> list[dict[str, Any]]:
             ],
         },
         {
-            "heading": "Pilot proposal & next steps",
+            "heading": "Pilot & next steps",
             "blocks": [
                 "We propose a phased pilot for the next brand: begin with the shared "
                 "model plus a brand-specific system prompt and an isolated retrieval "
@@ -158,28 +158,23 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
     for s in sections:
         ui.section(s["heading"], s.get("subheading"))
         if s.get("kpis"):
-            cols = st.columns(len(s["kpis"]))
-            for col, k in zip(cols, s["kpis"]):
-                with col:
-                    ui.kpi(k["label"], k["value"], k.get("delta"))
+            ui.kpi_row(s["kpis"])
         for b in s["blocks"]:
             st.markdown(b)
 
         # Inline charts attached to specific sections.
-        if s["heading"] == "Adoption, usage & spend":
+        if s["heading"] == "Adoption & spend":
             c1, c2 = st.columns(2)
             with c1:
-                st.plotly_chart(
+                ui.chart(
                     charts.line(df, ["requests"], ["Requests"], "Daily requests (inference calls)", "requests"),
-                    width="stretch",
                 )
             with c2:
-                st.plotly_chart(
+                ui.chart(
                     charts.line(df, ["spend_usd"], ["Spend"], "Daily spend (USD)", "USD"),
-                    width="stretch",
                 )
-        elif s["heading"] == "Availability, latency & incidents":
-            st.plotly_chart(
+        elif s["heading"] == "Reliability & incidents":
+            ui.chart(
                 charts.line(
                     df,
                     ["p50_latency_ms", "p95_latency_ms"],
@@ -187,14 +182,12 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
                     "Latency (ms)",
                     "ms",
                 ),
-                width="stretch",
             )
-            st.plotly_chart(
+            ui.chart(
                 charts.line(df, ["error_rate_pct"], ["Error rate"], "Daily error rate", "%"),
-                width="stretch",
             )
         elif s["heading"] == "Quality & escalations":
-            st.plotly_chart(
+            ui.chart(
                 charts.line(
                     df,
                     ["grounded_answer_rate_pct", "quality_eval_pass_rate_pct"],
@@ -202,5 +195,4 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
                     "Quality metrics",
                     "%",
                 ),
-                width="stretch",
             )

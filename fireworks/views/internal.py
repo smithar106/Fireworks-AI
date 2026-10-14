@@ -37,10 +37,10 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
             "heading": "Account overview",
             "subheading": "Northstar Retail Group — flagship deployment",
             "kpis": [
-                {"label": "Account health score", "value": f"{score['overall_score']:.0f} / 100"},
-                {"label": "Weighted automation", "value": ui.fmt_pct(summary["weighted_automation_pct"])},
-                {"label": "Recorded spend", "value": ui.fmt_usd(summary["total_spend"])},
-                {"label": "Requests", "value": ui.fmt_int(summary["total_requests"])},
+                {"label": "Account health score", "value": f"{score['overall_score']:.0f}", "sub": f"/ 100 · {tier['label']}", "tone": "accent"},
+                {"label": "Weighted automation", "value": ui.fmt_pct(summary["weighted_automation_pct"]), "sub": "Aug 31: 70.8%", "tone": "good"},
+                {"label": "Recorded spend", "value": ui.fmt_usd(summary["total_spend"]), "sub": "inference only", "tone": "neutral"},
+                {"label": "Requests", "value": ui.fmt_int(summary["total_requests"]), "sub": "inference calls", "tone": "neutral"},
             ],
             "blocks": [
                 f"**Status: {tier['label']}** ({score['overall_score']:.1f}/100) — see the scoring "
@@ -55,7 +55,7 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
             ],
         },
         {
-            "heading": "Account health scoring framework",
+            "heading": "Account health score",
             "subheading": "Transparent 0–100 score with explicit dimensions and weights",
             "blocks": [
                 "Each dimension maps an observed metric to a 0–100 sub-score via "
@@ -74,15 +74,15 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
             ],
         },
         {
-            "heading": "Operational incident timeline",
+            "heading": "Incident timeline",
             "blocks": [],
         },
         {
-            "heading": "Top three prioritized risks",
+            "heading": "Top risks",
             "blocks": [],
         },
         {
-            "heading": "Four-brand expansion pipeline",
+            "heading": "Expansion pipeline",
             "subheading": "Hypothetical profiles — every field is an assumption",
             "blocks": [
                 "The profiles below are illustrative. Support volumes, catalog complexity, "
@@ -91,7 +91,7 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
             ],
         },
         {
-            "heading": "Architecture proposal",
+            "heading": "Scaling architecture",
             "subheading": "How to extend to multiple brands — cost, latency, and policy tradeoffs",
             "blocks": [
                 "Three options are evaluated below. The recommendation: start every brand "
@@ -147,23 +147,20 @@ def render(summary: dict[str, Any], score: dict[str, Any], df: pd.DataFrame) -> 
     for s in sections:
         ui.section(s["heading"], s.get("subheading"))
         if s.get("kpis"):
-            cols = st.columns(len(s["kpis"]))
-            for col, k in zip(cols, s["kpis"]):
-                with col:
-                    ui.kpi(k["label"], k["value"], k.get("delta"))
+            ui.kpi_row(s["kpis"])
         for b in s["blocks"]:
             st.markdown(b)
 
         heading = s["heading"]
-        if heading == "Account health scoring framework":
+        if heading == "Account health score":
             _render_scoring_table(score)
-        elif heading == "Operational incident timeline":
+        elif heading == "Incident timeline":
             _render_incidents()
-        elif heading == "Top three prioritized risks":
+        elif heading == "Top risks":
             _render_risks()
-        elif heading == "Four-brand expansion pipeline":
+        elif heading == "Expansion pipeline":
             _render_brands()
-        elif heading == "Architecture proposal":
+        elif heading == "Scaling architecture":
             _render_architecture()
         elif heading == "Action tracker":
             _render_actions()
@@ -172,26 +169,22 @@ def render(summary: dict[str, Any], score: dict[str, Any], df: pd.DataFrame) -> 
 
 
 def _render_trends(df: pd.DataFrame) -> None:
-    st.plotly_chart(
+    ui.chart(
         charts.line(df, ["requests"], ["Requests"], "Daily requests", "requests"),
-        width="stretch",
     )
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(
+        ui.chart(
             charts.line(df, ["total_tokens"], ["Tokens"], "Daily total tokens", "tokens"),
-            width="stretch",
         )
     with c2:
-        st.plotly_chart(
+        ui.chart(
             charts.line(df, ["spend_usd"], ["Spend"], "Daily spend (USD)", "USD"),
-            width="stretch",
         )
-    st.plotly_chart(
+    ui.chart(
         charts.line(df, ["automation_rate_pct"], ["Automation"], "Daily automation rate", "%"),
-        width="stretch",
     )
-    st.plotly_chart(
+    ui.chart(
         charts.line(
             df,
             ["p50_latency_ms", "p95_latency_ms"],
@@ -199,19 +192,16 @@ def _render_trends(df: pd.DataFrame) -> None:
             "Latency (ms)",
             "ms",
         ),
-        width="stretch",
     )
-    st.plotly_chart(
+    ui.chart(
         charts.line(df, ["error_rate_pct"], ["Error rate"], "Daily error rate", "%"),
-        width="stretch",
     )
-    st.plotly_chart(
+    ui.chart(
         charts.line(df, ["availability_pct"], ["Availability"], "Daily availability", "%"),
-        width="stretch",
     )
     c1, c2 = st.columns(2)
     with c1:
-        st.plotly_chart(
+        ui.chart(
             charts.line(
                 df,
                 ["grounded_answer_rate_pct", "quality_eval_pass_rate_pct"],
@@ -219,10 +209,9 @@ def _render_trends(df: pd.DataFrame) -> None:
                 "Quality metrics",
                 "%",
             ),
-            width="stretch",
         )
     with c2:
-        st.plotly_chart(
+        ui.chart(
             charts.line(
                 df,
                 ["escalation_rate_pct", "csat_score"],
@@ -230,7 +219,6 @@ def _render_trends(df: pd.DataFrame) -> None:
                 "Escalations & CSAT",
                 "value",
             ),
-            width="stretch",
         )
 
 
@@ -246,7 +234,7 @@ def _render_scoring_table(score: dict[str, Any]) -> None:
         for d in score["dimensions"]
     ]
     st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
-    st.plotly_chart(
+    ui.chart(
         charts.bars(
             [d["name"] for d in score["dimensions"]],
             [d["sub_score"] for d in score["dimensions"]],
@@ -254,7 +242,6 @@ def _render_scoring_table(score: dict[str, Any]) -> None:
             x_title="sub-score",
             color="#3457D5",
         ),
-        width="stretch",
     )
 
 

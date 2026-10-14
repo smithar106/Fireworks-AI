@@ -87,13 +87,18 @@ EXPECTED_DATE_RANGE = ("2026-08-01", "2026-08-31")
 # Chart palette (consistent across both views)
 # ---------------------------------------------------------------------------
 
-INK = "#14161A"
-MUTED = "#5C6470"
-GRID = "#E7E5DF"
-ACCENT = "#3457D5"  # primary blue
-ACCENT_2 = "#0E9384"  # teal (secondary)
-GOOD = "#0F9D58"
-WARN = "#C77B16"
-BAD = "#C0392B"
+INK = "#19191F"
+MUTED = "#6B6B75"
+FAINT = "#8A8A94"
+BORDER = "#E6E6EA"
+SURFACE = "#FFFFFF"
+CANVAS = "#F7F8F7"
+ACCENT = "#2563EB"  # primary blue
+ACCENT_DARK = "#1E40AF"
+GOOD = "#16A34A"
+GOOD_TEXT = "#14532D"
+WARN = "#F5A623"
+WARN_TEXT = "#8A5A00"
+BAD = "#DC2626"
 
-PALETTE = [ACCENT, ACCENT_2, "#6D4BC0", "#C77B16", "#0F9D58", "#8E3B2B"]
+PALETTE = [ACCENT, "#7C3AED", "#0EA5E9", "#D97706", "#16A34A", "#DB2777"]

@@ -1,6 +1,7 @@
 """Fireworks AI — Northstar Retail Group take-home assessment.
 
-A single Streamlit application with two strictly separated audience views:
+A single Streamlit application with two strictly separated audience views
+selected via a top tab bar:
 
   1. Internal Fireworks QBR (account management, engineering, executives)
   2. Customer-facing Northstar account health (VP CX, VP Engineering)
@@ -8,9 +9,9 @@ A single Streamlit application with two strictly separated audience views:
 Run:
     streamlit run app.py
 
-NOTE: the view selector in the sidebar is for DEMONSTRATION ONLY. It is not an
-authentication or security boundary — both views render in the same process and
-the internal view is never exposed to a real customer. See README.md.
+NOTE: the tab selector is for DEMONSTRATION ONLY. It is not an authentication
+or security boundary — both views run in the same process and the internal view
+must never be exposed to a real customer. See README.md.
 """
 
 from __future__ import annotations
@@ -38,24 +39,11 @@ df = load_dataframe()
 report = validate_dataframe(df)
 
 # ---------------------------------------------------------------------------
-# Sidebar: audience selector + date filter
+# Sidebar: date filter (view selection lives in the top tabs)
 # ---------------------------------------------------------------------------
 
 with st.sidebar:
-    st.markdown("### Audience view")
-    view = st.radio(
-        "Select a view (demo only)",
-        options=("Internal Fireworks QBR", "Customer — Northstar account health"),
-        index=0,
-    )
-    st.markdown(
-        '<div class="fw-footnote">The view selector is a local demonstration control, '
-        "not an authentication or security boundary. Both views run in the same "
-        "process.</div>",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("### Date range")
+    st.markdown("#### Date range")
     min_date = df[config.DATE_COL].min().date()
     max_date = df[config.DATE_COL].max().date()
     start, end = st.date_input(
@@ -63,6 +51,10 @@ with st.sidebar:
         value=(min_date, max_date),
         min_value=min_date,
         max_value=max_date,
+    )
+    ui.footnote(
+        "The Internal / Customer tabs are a local demonstration control — not an "
+        "authentication or security boundary."
     )
 
 ui.render_validation_banner(report)
@@ -79,20 +71,21 @@ if filtered.empty:
 summary = metrics.compute_summary(filtered)
 score = scoring.compute_health_score(filtered)
 
-st.title("Northstar Retail Group — Fireworks AI")
-st.caption(
-    f"Deployment: `northstar-flagship-support-ft-v1` · "
-    f"{summary['start_date']} to {summary['end_date']} · {summary['days']} days"
+ui.header(
+    "Northstar Retail Group — Fireworks AI",
+    f"Deployment `northstar-flagship-support-ft-v1` · {summary['start_date']} to {summary['end_date']} · {summary['days']} days",
 )
 
-if view == "Internal Fireworks QBR":
+# ---------------------------------------------------------------------------
+# Top-level audience tabs
+# ---------------------------------------------------------------------------
+
+internal_tab, customer_tab = st.tabs(
+    ["Internal Fireworks QBR", "Customer — Northstar account health"]
+)
+
+with internal_tab:
     internal.render(summary, score, filtered)
-else:
-    customer.render(summary, filtered)
 
-ui.footnote(
-    "Metric notes: requests are inference calls, not tickets. Weighted automation = "
-    "sum(automated) / sum(Tier-1). 'P95 latency' is the daily reported P95 (a true "
-    "monthly P95 requires the raw distribution, which is not provided). Recorded spend "
-    "is inference spend only."
-)
+with customer_tab:
+    customer.render(summary, filtered)

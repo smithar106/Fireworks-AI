@@ -213,6 +213,7 @@ fireworks-northstar-assessment/
   README.md
   DESIGN.md
   EBR.md
+  railway.json
   conftest.py
   data/northstar_flagship_30_day_metrics.csv
   fireworks/
