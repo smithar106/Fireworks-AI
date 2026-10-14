@@ -93,6 +93,12 @@ def inject_css() -> None:
         .fw-subtitle { color: #6B6B75; font-size: 0.85rem; margin-top: -0.25rem; }
         .fw-eyebrow { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #8A8A94; font-weight: 700; }
 
+        .fw-hero {
+            font-size: 1.22rem; font-weight: 700; color: #19191F; line-height: 1.35;
+            letter-spacing: -0.01em; margin: 0.25rem 0 1.25rem; max-width: 900px;
+        }
+        .fw-hero .accent { color: #2563EB; }
+
         .fw-footnote { color: #8A8A94; font-size: 0.76rem; line-height: 1.45;
             border-top: 1px solid #E6E6EA; margin-top: 0.4rem; padding-top: 0.4rem; }
         </style>
@@ -111,6 +117,11 @@ def header(title: str, subtitle: str) -> None:
         f'<div class="fw-header"><h1>{title}</h1><p>{subtitle}</p></div>',
         unsafe_allow_html=True,
     )
+
+
+def hero(text: str) -> None:
+    """Render the executive one-liner that opens each view."""
+    st.markdown(f'<div class="fw-hero">{text}</div>', unsafe_allow_html=True)
 
 
 def kpi_row(items: list[dict[str, Any]]) -> None:

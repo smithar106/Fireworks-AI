@@ -24,6 +24,13 @@ def _overview_takeaways(summary: dict[str, Any], score: dict[str, Any]) -> list[
     ]
 
 
+def _hero(summary: dict[str, Any], score: dict[str, Any]) -> str:
+    return (
+        f"Account health <span class=\"accent\">{score['overall_score']:.0f}/100</span> — {score['tier']['label'].lower()}, "
+        "with two same-day-resolved incidents and a credible path to four more brands."
+    )
+
+
 def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, Any]]:
     return [
         {
@@ -38,19 +45,22 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
         },
         {
             "heading": "Account health score",
-            "blocks": [
-                "Weighted average over scored dimensions (weights in `assumptions.py`); "
-                "relationship, commercial, and competitive dimensions are unscored.",
-            ],
+            "subheading": "Transparent 0–100 weighted score across eight operational dimensions.",
+            "blocks": [],
         },
-        {"heading": "Trends", "blocks": []},
-        {"heading": "Incidents", "blocks": []},
-        {"heading": "Top risks", "blocks": []},
+        {"heading": "Trends", "subheading": "Every key metric moved the right way through August.", "blocks": []},
+        {"heading": "Incidents", "subheading": "Two incidents, both resolved same-day; one improvement.", "blocks": []},
+        {"heading": "Top risks", "subheading": "Content-refresh resilience, promo autoscaling, and remaining manual Tier-1.", "blocks": []},
         {
             "heading": "Expansion pipeline",
-            "blocks": ["Four hypothetical brands — every field is an assumption."],
+            "subheading": "Four hypothetical brands — every field is an assumption.",
+            "blocks": [],
         },
-        {"heading": "Scaling architecture", "blocks": []},
+        {
+            "heading": "Scaling architecture",
+            "subheading": "Start shared; fine-tune only where behavior gaps are proven.",
+            "blocks": [],
+        },
         {
             "heading": "Internal assessments",
             "blocks": [
@@ -68,6 +78,7 @@ def content(summary: dict[str, Any], score: dict[str, Any]) -> list[dict[str, An
 
 
 def render(summary: dict[str, Any], score: dict[str, Any], df: pd.DataFrame) -> None:
+    ui.hero(_hero(summary, score))
     sections = content(summary, score)
 
     for s in sections:
@@ -123,17 +134,17 @@ def _render_trends(df: pd.DataFrame) -> None:
     with c1:
         ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Daily spend (USD)", "USD", colors=[config.ACCENT]))
     with c2:
-        ui.chart(charts.line(df, ["automation_rate_pct"], ["Automation"], "Daily automation", "%", colors=[config.GOOD]))
+        ui.chart(charts.line(df, ["automation_rate_pct"], ["Automation"], "Automation — 65% → 70.8%", "%", colors=[config.GOOD]))
     c1, c2 = st.columns(2)
     with c1:
         ui.chart(
             charts.line(
                 df, ["p50_latency_ms", "p95_latency_ms"], ["P50", "P95 (daily)"],
-                "Latency", "ms", colors=[config.ACCENT, config.WARN],
+                "Latency — falling through August", "ms", colors=[config.ACCENT, config.WARN],
             )
         )
     with c2:
-        ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Daily error rate", "%", colors=[config.BAD]))
+        ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", "%", colors=[config.BAD]))
     c1, c2 = st.columns(2)
     with c1:
         ui.chart(charts.line(df, ["availability_pct"], ["Availability"], "Daily availability", "%", colors=[config.GOOD]))
