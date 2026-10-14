@@ -121,7 +121,6 @@ def _render_scoring(score: dict[str, Any]) -> None:
         for d in score["dimensions"]
     ]
     st.dataframe(pd.DataFrame(rows), width="stretch", hide_index=True)
-    ui.footnote("Unscored: " + ", ".join(u["name"] for u in score["unscored"]) + ".")
 
 
 def _render_trends(df: pd.DataFrame) -> None:

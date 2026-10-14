@@ -133,9 +133,3 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
                         colors=[config.GOOD, config.ACCENT],
                     )
                 )
-
-    ui.footnote(
-        "Outcomes (70% automation, 35% handle-time, +12 CSAT) are measured against a "
-        "pre-launch baseline not present in this dataset. P95 latency is the daily reported "
-        "value. Spend is inference-only."
-    )
