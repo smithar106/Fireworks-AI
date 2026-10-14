@@ -18,6 +18,8 @@ def flatten(sections: list[dict[str, Any]]) -> list[str]:
             texts.append(s["subheading"])
         for k in s.get("kpis", []):
             texts.append(k.get("label", ""))
+            if k.get("sub"):
+                texts.append(k["sub"])
             if k.get("help"):
                 texts.append(k["help"])
         texts.extend(s.get("blocks", []))

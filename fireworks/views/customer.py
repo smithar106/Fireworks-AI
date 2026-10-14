@@ -18,9 +18,10 @@ from fireworks import assumptions, charts, config, ui
 
 
 def _hero(summary: dict[str, Any]) -> str:
+    o = assumptions.PROVIDED_OUTCOMES
     return (
         "One month in, the flagship support agent is delivering — "
-        f"<span class=\"accent\">{summary['weighted_automation_pct']:.0f}% of Tier-1 automated</span>, "
+        f"<span class=\"accent\">{o['automation']['value']} of Tier-1 automated</span>, "
         f"{summary['latest']['availability_pct']:.1f}% available, and CSAT climbing."
     )
 

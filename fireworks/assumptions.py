@@ -181,7 +181,7 @@ OPERATIONAL_EVENTS: list[dict] = [
         "kind": "improvement",
         "title": "RAG index refresh",
         "detail": "RAG index refresh improved grounding on return-policy questions.",
-        "observed": "grounded_answer_rate_pct 94.6% -> 95.7% on Aug 24.",
+        "observed": "Grounding 94.6% → 95.7% on Aug 24.",
     },
 ]
 

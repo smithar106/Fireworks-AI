@@ -71,7 +71,7 @@ def line(
                 y=df[col],
                 mode="lines",
                 name=labels[i],
-                line=dict(width=2.4, color=colors[i], shape="spline", smoothing=0.6),
+                line=dict(width=2.4, color=colors[i]),
                 hovertemplate=f"{labels[i]}: %{{y:,.2f}}<extra></extra>",
             )
         )
