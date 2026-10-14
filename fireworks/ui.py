@@ -101,6 +101,24 @@ def inject_css() -> None:
 
         .fw-footnote { color: #8A8A94; font-size: 0.76rem; line-height: 1.45;
             border-top: 1px solid #E6E6EA; margin-top: 0.4rem; padding-top: 0.4rem; }
+
+        /* Prominent top view selector (segmented control) */
+        [data-testid="stButtonGroup"] { margin: 0.4rem 0 1rem 0; }
+        [data-testid="stButtonGroup"] [data-variant="segmented_control"] {
+            font-size: 1rem !important;
+            padding: 0.55rem 1.75rem !important;
+            border-radius: 0.7rem !important;
+        }
+        [data-testid="stButtonGroup"] [data-variant="segmented_control"]:has([data-selected="true"]),
+        [data-testid="stButtonGroup"] [data-selected="true"] {
+            background-color: #2563EB !important;
+            border-color: #2563EB !important;
+        }
+        [data-testid="stButtonGroup"] [data-variant="segmented_control"]:has([data-selected="true"]) *,
+        [data-testid="stButtonGroup"] [data-selected="true"] * {
+            color: #FFFFFF !important;
+            font-weight: 700 !important;
+        }
         </style>
         """,
         unsafe_allow_html=True,
