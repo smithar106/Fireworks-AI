@@ -201,10 +201,6 @@ def _render_architecture() -> None:
                 {"text": "Cons: " + "; ".join(opt["cons"]), "tone": "warn"},
             ]
         )
-    ui.footnote(
-        "Separate models/GPUs do not guarantee privacy; isolation is enforced at the "
-        "retrieval, prompt, and access layers. Fine-tuning is not required to use private knowledge."
-    )
 
 
 def _render_actions() -> None:
