@@ -159,6 +159,23 @@ def footnote(text: str) -> None:
     st.markdown(f'<div class="fw-footnote">{text}</div>', unsafe_allow_html=True)
 
 
+def takeaways(items: list[dict[str, Any]]) -> None:
+    """Render a compact list of one-line takeaways (colored dot + text)."""
+    color = {"good": config.GOOD, "bad": config.BAD, "warn": config.WARN, "neutral": config.MUTED}
+    rows = []
+    for it in items:
+        tone = it.get("tone", "neutral")
+        dot = color.get(tone, config.MUTED)
+        rows.append(
+            f'<li style="display:flex;gap:0.5rem;align-items:baseline;margin-bottom:0.35rem;'
+            f'font-size:0.85rem;color:{config.INK};">'
+            f'<span style="width:7px;height:7px;border-radius:999px;background:{dot};'
+            f'flex:0 0 auto;transform:translateY(-1px);"></span>'
+            f'<span>{it["text"]}</span></li>'
+        )
+    st.markdown(f'<ul style="list-style:none;margin:0;padding:0;">{"".join(rows)}</ul>', unsafe_allow_html=True)
+
+
 def disclaimer(text: str) -> None:
     st.info(text)
 
