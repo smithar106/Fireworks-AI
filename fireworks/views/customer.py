@@ -113,23 +113,23 @@ def render(summary: dict[str, Any], df: pd.DataFrame) -> None:
             elif heading == "Usage & spend":
                 c1, c2 = st.columns(2)
                 with c1:
-                    ui.chart(charts.line(df, ["requests"], ["Requests"], "Requests per day", "requests"))
+                    ui.chart(charts.line(df, ["requests"], ["Requests"], "Requests per day", digits=0))
                 with c2:
-                    ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Spend per day (USD)", "USD", colors=[config.ACCENT]))
+                    ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Spend per day (USD)", colors=[config.ACCENT], digits=2))
             elif heading == "Reliability":
                 ui.chart(
                     charts.line(
                         df, ["p50_latency_ms", "p95_latency_ms"], ["P50", "P95 (daily)"],
-                        "Latency — falling through August", "ms",
-                        colors=[config.ACCENT, config.WARN],
+                        "Latency — falling through August",
+                        colors=[config.ACCENT, config.WARN], digits=0,
                     )
                 )
-                ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", "%", colors=[config.BAD]))
+                ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", colors=[config.BAD], digits=2))
             elif heading == "Quality":
                 ui.chart(
                     charts.line(
                         df, ["grounded_answer_rate_pct", "quality_eval_pass_rate_pct"],
-                        ["Grounded answers", "Quality eval pass"], "Answer quality", "%",
+                        ["Grounded answers", "Quality eval pass"], "Answer quality",
                         colors=[config.GOOD, config.ACCENT],
                     )
                 )

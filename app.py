@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import streamlit as st
 
-from fireworks import config, metrics, scoring, ui
+from fireworks import metrics, scoring, ui
 from fireworks.data import load_dataframe, validate_dataframe
 from fireworks.views import customer, internal
 
@@ -41,7 +41,7 @@ report = validate_dataframe(df)
 ui.render_validation_banner(report)
 
 # ---------------------------------------------------------------------------
-# Top header + view selector + date filter (no sidebar)
+# Top header + view selector (no sidebar, no date filter)
 # ---------------------------------------------------------------------------
 
 ui.header(
@@ -55,32 +55,17 @@ view = st.segmented_control(
     default="Internal Fireworks QBR",
 )
 
-with st.expander("Date range", expanded=False):
-    min_date = df[config.DATE_COL].min().date()
-    max_date = df[config.DATE_COL].max().date()
-    start, end = st.date_input(
-        "Filter window",
-        value=(min_date, max_date),
-        min_value=min_date,
-        max_value=max_date,
-    )
-
-filtered = metrics.filter_by_date(df, start, end)
-if filtered.empty:
-    st.warning("No data in the selected date range.")
-    st.stop()
-
-summary = metrics.compute_summary(filtered)
-score = scoring.compute_health_score(filtered)
+summary = metrics.compute_summary(df)
+score = scoring.compute_health_score(df)
 
 # ---------------------------------------------------------------------------
 # Render only the selected view (true audience isolation)
 # ---------------------------------------------------------------------------
 
 if view == "Customer — Northstar account health":
-    customer.render(summary, filtered)
+    customer.render(summary, df)
 else:
-    internal.render(summary, score, filtered)
+    internal.render(summary, score, df)
 
 ui.footnote(
     "The view selector is a local demonstration control, not an authentication or "

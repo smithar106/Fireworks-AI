@@ -113,8 +113,7 @@ def _render_scoring(score: dict[str, Any]) -> None:
         charts.bars(
             [d["name"] for d in score["dimensions"]],
             [d["sub_score"] for d in score["dimensions"]],
-            title="Dimension sub-scores",
-            x_title="0–100",
+            title="Dimension sub-scores (0–100)",
         )
     )
     rows = [
@@ -128,44 +127,40 @@ def _render_scoring(score: dict[str, Any]) -> None:
 def _render_trends(df: pd.DataFrame) -> None:
     c1, c2 = st.columns(2)
     with c1:
-        ui.chart(charts.line(df, ["requests"], ["Requests"], "Daily requests", "requests"))
+        ui.chart(charts.line(df, ["requests"], ["Requests"], "Daily requests", digits=0))
     with c2:
-        ui.chart(charts.line(df, ["total_tokens"], ["Tokens"], "Daily total tokens", "tokens", colors=[config.GOOD]))
+        ui.chart(charts.line(df, ["total_tokens"], ["Tokens"], "Daily total tokens", colors=[config.GOOD], digits=0))
     c1, c2 = st.columns(2)
     with c1:
-        ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Daily spend (USD)", "USD", colors=[config.ACCENT]))
+        ui.chart(charts.line(df, ["spend_usd"], ["Spend"], "Daily spend (USD)", colors=[config.ACCENT], digits=2))
     with c2:
-        ui.chart(charts.line(df, ["automation_rate_pct"], ["Automation"], "Automation — 65% → 70.8%", "%", colors=[config.GOOD]))
+        ui.chart(charts.line(df, ["automation_rate_pct"], ["Automation"], "Automation — 65% → 70.8%", colors=[config.GOOD]))
     c1, c2 = st.columns(2)
     with c1:
         ui.chart(
             charts.line(
                 df, ["p50_latency_ms", "p95_latency_ms"], ["P50", "P95 (daily)"],
-                "Latency — falling through August", "ms", colors=[config.ACCENT, config.WARN],
+                "Latency — falling through August", colors=[config.ACCENT, config.WARN], digits=0,
             )
         )
     with c2:
-        ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", "%", colors=[config.BAD]))
+        ui.chart(charts.line(df, ["error_rate_pct"], ["Error rate"], "Error rate — 1.34% → 0.66%", colors=[config.BAD], digits=2))
     c1, c2 = st.columns(2)
     with c1:
-        ui.chart(charts.line(df, ["availability_pct"], ["Availability"], "Daily availability", "%", colors=[config.GOOD]))
+        ui.chart(charts.line(df, ["availability_pct"], ["Availability"], "Daily availability", colors=[config.GOOD], digits=3))
     with c2:
         ui.chart(
             charts.line(
                 df, ["grounded_answer_rate_pct", "quality_eval_pass_rate_pct"],
-                ["Grounded answers", "Quality eval pass"], "Quality", "%",
+                ["Grounded answers", "Quality eval pass"], "Answer quality",
                 colors=[config.GOOD, config.ACCENT],
             )
         )
     c1, c2 = st.columns(2)
     with c1:
-        ui.chart(
-            charts.line(
-                df, ["escalation_rate_pct"], ["Escalation rate"], "Daily escalation rate", "%", colors=[config.BAD],
-            )
-        )
+        ui.chart(charts.line(df, ["escalation_rate_pct"], ["Escalation rate"], "Daily escalation rate", colors=[config.BAD]))
     with c2:
-        ui.chart(charts.line(df, ["csat_score"], ["CSAT"], "Daily CSAT", "points", colors=[config.ACCENT]))
+        ui.chart(charts.line(df, ["csat_score"], ["CSAT"], "Daily CSAT", colors=[config.ACCENT]))
 
 
 def _render_incidents() -> None:

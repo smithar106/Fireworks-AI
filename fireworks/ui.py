@@ -75,7 +75,7 @@ def inject_css() -> None:
 
         .fw-kpi-row {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-            gap: 0.75rem; margin: 0.25rem 0 1rem;
+            gap: 0.75rem; margin: 0.6rem 0 0.6rem;
         }
         .fw-kpi {
             background: #FFFFFF; border: 1px solid #E6E6EA; border-radius: 0.75rem;
@@ -85,22 +85,30 @@ def inject_css() -> None:
             font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
             text-transform: uppercase; color: #6B6B75;
         }
-        .fw-kpi-value { font-size: 1.65rem; font-weight: 800; margin-top: 0.3rem; color: #19191F; line-height: 1.1; }
-        .fw-kpi-sub { font-size: 0.78rem; color: #6B6B75; margin-top: 0.3rem; }
+        .fw-kpi-value { font-size: 1.6rem; font-weight: 800; margin-top: 0.25rem; color: #19191F; line-height: 1.1; }
+        .fw-kpi-sub { font-size: 0.78rem; color: #6B6B75; margin-top: 0.25rem; }
 
-        .fw-section { margin-top: 0.75rem; }
-        .fw-section h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 0.1rem; }
-        .fw-subtitle { color: #6B6B75; font-size: 0.85rem; margin-top: -0.25rem; }
+        .fw-section { margin: 0 0 0.6rem; }
+        .fw-section h3 { font-size: 1rem; font-weight: 800; margin: 0; color: #19191F; }
+        .fw-subtitle { color: #6B6B75; font-size: 0.85rem; margin: 0.15rem 0 0; }
         .fw-eyebrow { font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: #8A8A94; font-weight: 700; }
 
         .fw-hero {
-            font-size: 1.22rem; font-weight: 700; color: #19191F; line-height: 1.35;
-            letter-spacing: -0.01em; margin: 0.25rem 0 1.25rem; max-width: 900px;
+            font-size: 1.15rem; font-weight: 700; color: #19191F; line-height: 1.35;
+            letter-spacing: -0.01em; margin: 0.4rem 0 1rem; max-width: 900px;
         }
         .fw-hero .accent { color: #2563EB; }
 
         .fw-footnote { color: #8A8A94; font-size: 0.76rem; line-height: 1.45;
             border-top: 1px solid #E6E6EA; margin-top: 0.4rem; padding-top: 0.4rem; }
+
+        /* Uniform spacing between bordered section cards */
+        [data-testid="stVerticalBlockBorderWrapper"] {
+            border-radius: 0.75rem;
+        }
+        [data-testid="stVerticalBlockBorderWrapper"] > div {
+            padding: 1rem 1.1rem;
+        }
 
         /* Prominent top view selector (segmented control) */
         [data-testid="stButtonGroup"] { margin: 0.4rem 0 1rem 0; }
