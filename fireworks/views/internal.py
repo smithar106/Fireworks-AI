@@ -169,7 +169,6 @@ def _render_incidents() -> None:
         label = "Incident" if e["kind"] == "incident" else "Improvement"
         st.markdown(f"**{e['date']}** — {e['title']} · {e['detail']}")
         ui.pill(label, tone)
-        ui.footnote(f"Observed: {e['observed']}")
 
 
 def _render_risks() -> None:

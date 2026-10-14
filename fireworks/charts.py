@@ -16,7 +16,7 @@ def _style(fig: go.Figure, title: str, height: int, showlegend: bool) -> go.Figu
     fig.update_layout(
         title=dict(text=title, font=dict(size=14, color=config.INK), x=0.01, xanchor="left"),
         height=height,
-        margin=dict(l=8, r=8, t=40, b=8),
+        margin=dict(l=8, r=8, t=40, b=30 if showlegend else 8),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         font=dict(family="Inter, system-ui, sans-serif", color=config.INK),
@@ -26,7 +26,10 @@ def _style(fig: go.Figure, title: str, height: int, showlegend: bool) -> go.Figu
     )
     if showlegend:
         fig.update_layout(
-            legend=dict(orientation="h", yanchor="bottom", y=1.02, x=0, font=dict(size=11, color=config.MUTED)),
+            legend=dict(
+                orientation="h", yanchor="top", y=-0.12, x=0.5, xanchor="center",
+                font=dict(size=11, color=config.MUTED),
+            ),
         )
     fig.update_xaxes(
         showline=True, linecolor=config.BORDER, linewidth=1,
